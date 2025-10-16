@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os/user"
+	"runtime"
 )
 
 func findUserName() (string, error) {
@@ -21,4 +22,5 @@ func Greet() {
 		username = "some entity"
 	}
 	fmt.Printf("Hello, %s!\n", username)
+	fmt.Printf("Running from %s\n", runtime.GOOS)
 }
