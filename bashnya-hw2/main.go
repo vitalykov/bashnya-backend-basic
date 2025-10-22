@@ -8,10 +8,11 @@ func main() {
 	const threshold = 12307
 	var num int
 	fmt.Scan(&num)
+	calcNeeded := true
 	if num >= threshold {
-		fmt.Println("The number is already above the threshold, no calculations are needed.")
-		return
+		calcNeeded = false
 	}
+
 	for num < threshold {
 		switch {
 		case num < 0:
@@ -32,5 +33,10 @@ func main() {
 		}
 	}
 
-	fmt.Printf("After complicated calculations the number become: %d. Congratulations!\n", num)
+	if calcNeeded {
+		fmt.Printf("After complicated calculations the number become: %d. Congratulations!\n", num)
+	} else {
+		fmt.Println("The number is already above the threshold, no calculations are needed.")
+	}
+	fmt.Printf("А теперь по-русски: %s\n", IntToWords(num))
 }
