@@ -1,4 +1,4 @@
-package main
+package numbers
 
 import (
 	"slices"
@@ -6,6 +6,7 @@ import (
 )
 
 var partWords = map[int]string{
+	0:   "",
 	1:   "один",
 	2:   "два",
 	3:   "три",
@@ -54,6 +55,23 @@ var intWords = [...]string{
 	"квинтиллион",
 }
 
+func getLastWord(part int, isThousands bool) string {
+	var lastWord string
+	if !isThousands {
+		lastWord = partWords[part]
+	} else {
+		switch part {
+		case 1:
+			lastWord = "одна"
+		case 2:
+			lastWord = "две"
+		default:
+			lastWord = partWords[part]
+		}
+	}
+	return lastWord
+}
+
 func numPartToWords(part int, isThousands bool) string {
 	var wordRepr strings.Builder
 	hundreds := (part / 100) * 100
@@ -66,26 +84,15 @@ func numPartToWords(part int, isThousands bool) string {
 		wordRepr.WriteByte(' ')
 	}
 	if part <= 19 {
-		wordRepr.WriteString(partWords[part])
+		lastWord := getLastWord(part, isThousands)
+		wordRepr.WriteString(lastWord)
 	} else {
 		tens := (part / 10) * 10
 		wordRepr.WriteString(partWords[tens])
 		part -= tens
 		if part != 0 {
 			wordRepr.WriteByte(' ')
-			var lastWord string
-			if !isThousands {
-				lastWord = partWords[part]
-			} else {
-				switch part {
-				case 1:
-					lastWord = "одна"
-				case 2:
-					lastWord = "две"
-				default:
-					lastWord = partWords[part]
-				}
-			}
+			lastWord := getLastWord(part, isThousands)
 			wordRepr.WriteString(lastWord)
 		}
 	}
@@ -93,6 +100,10 @@ func numPartToWords(part int, isThousands bool) string {
 }
 
 func getDefaultSuffix(part int) string {
+	tens := part - (part/100)*100
+	if tens/10 == 1 {
+		return "ов"
+	}
 	lastDigit := part % 10
 	switch lastDigit {
 	case 2, 3, 4:
@@ -105,6 +116,10 @@ func getDefaultSuffix(part int) string {
 }
 
 func getThousandsSuffix(part int) string {
+	tens := part - (part/100)*100
+	if tens/10 == 1 {
+		return ""
+	}
 	lastDigit := part % 10
 	switch lastDigit {
 	case 2, 3, 4:
@@ -117,6 +132,14 @@ func getThousandsSuffix(part int) string {
 }
 
 func IntToWords(num int) string {
+	if num == 0 {
+		return "ноль"
+	}
+	var wordRepr strings.Builder
+	if num < 0 {
+		wordRepr.WriteString("минус ")
+		num = -num
+	}
 	parts := make([]int, 0)
 	for num > 0 {
 		parts = append(parts, num%1000)
@@ -124,7 +147,6 @@ func IntToWords(num int) string {
 	}
 	slices.Reverse(parts)
 	partsCount := len(parts)
-	var wordRepr strings.Builder
 	var isThousands bool
 	for i, part := range parts {
 		if part == 0 {
@@ -148,5 +170,5 @@ func IntToWords(num int) string {
 		}
 		wordRepr.WriteByte(' ')
 	}
-	return wordRepr.String()
+	return strings.TrimSpace(wordRepr.String())
 }
