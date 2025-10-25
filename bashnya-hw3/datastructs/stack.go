@@ -23,14 +23,14 @@ func (st Stack[T]) Top() (T, error) {
 	if st.IsEmpty() {
 		return el, errors.New("Stack is empty")
 	}
-	el = st.data[st.Size()-1]
+	el = st.data[len(st.data)-1]
 	return el, nil
 }
 
 func (st *Stack[T]) Pop() (T, error) {
 	el, err := st.Top()
 	if err == nil {
-		st.data = st.data[:st.Size()-1]
+		st.data = st.data[:len(st.data)-1]
 	}
 	return el, err
 }
