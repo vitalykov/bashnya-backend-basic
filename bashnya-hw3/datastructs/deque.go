@@ -5,6 +5,10 @@ import (
 	"slices"
 )
 
+const (
+	emptyDequeMsg = "Deque is empty"
+)
+
 type Deque[T any] struct {
 	frontData []T
 	backData  []T
@@ -29,7 +33,7 @@ func (dq *Deque[T]) PushBack(el T) {
 func (dq Deque[T]) Back() (T, error) {
 	var el T
 	if dq.IsEmpty() {
-		return el, errors.New("Deque is empty")
+		return el, errors.New(emptyDequeMsg)
 	}
 	backLen := len(dq.backData)
 	if backLen != 0 {
@@ -43,7 +47,7 @@ func (dq Deque[T]) Back() (T, error) {
 func (dq Deque[T]) Front() (T, error) {
 	var el T
 	if dq.IsEmpty() {
-		return el, errors.New("Deque is empty")
+		return el, errors.New(emptyDequeMsg)
 	}
 	frontLen := len(dq.frontData)
 	if frontLen != 0 {
