@@ -2,6 +2,8 @@ package datastructs
 
 import "errors"
 
+var errEmptyStack = errors.New("Stack is empty")
+
 type Stack[T any] struct {
 	data []T
 }
@@ -21,7 +23,7 @@ func (st *Stack[T]) Push(el T) {
 func (st Stack[T]) Top() (T, error) {
 	var el T
 	if st.IsEmpty() {
-		return el, errors.New("Stack is empty")
+		return el, errEmptyStack
 	}
 	el = st.data[len(st.data)-1]
 	return el, nil
