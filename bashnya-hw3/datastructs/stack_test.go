@@ -14,7 +14,7 @@ func checkTop[T comparable](t *testing.T, st Stack[T], val T, e error) {
 	}
 }
 
-func checkParams[T any](t *testing.T, st Stack[T], sz int, empty bool) {
+func checkStackParams[T any](t *testing.T, st Stack[T], sz int, empty bool) {
 	if gotEmpty := st.IsEmpty(); empty != gotEmpty {
 		t.Errorf("IsEmpty() = %v. Expected: %v", gotEmpty, empty)
 	}
@@ -37,20 +37,20 @@ func checkPop[T comparable](t *testing.T, st *Stack[T], val T, e error) {
 func TestIntStack(t *testing.T) {
 	var st Stack[int]
 	nums := [...]int{5, 4, 3, 2, 1}
-	checkParams(t, st, 0, true)
+	checkStackParams(t, st, 0, true)
 	checkTop(t, st, 0, errEmptyStack)
 	for i, num := range nums {
 		st.Push(num)
-		checkParams(t, st, i+1, false)
+		checkStackParams(t, st, i+1, false)
 		checkTop(t, st, num, nil)
 	}
 	for i := len(nums) - 1; i > 0; i-- {
 		checkPop(t, &st, nums[i], nil)
 		checkTop(t, st, nums[i-1], nil)
-		checkParams(t, st, i, false)
+		checkStackParams(t, st, i, false)
 	}
 	checkPop(t, &st, nums[0], nil)
-	checkParams(t, st, 0, true)
+	checkStackParams(t, st, 0, true)
 	checkTop(t, st, 0, errEmptyStack)
 	checkPop(t, &st, 0, errEmptyStack)
 }
@@ -58,20 +58,20 @@ func TestIntStack(t *testing.T) {
 func TestStringStack(t *testing.T) {
 	var st Stack[string]
 	strs := [...]string{"hello", "", "bashnya", "homework", "3"}
-	checkParams(t, st, 0, true)
+	checkStackParams(t, st, 0, true)
 	checkTop(t, st, "", errEmptyStack)
 	for i, s := range strs {
 		st.Push(s)
-		checkParams(t, st, i+1, false)
+		checkStackParams(t, st, i+1, false)
 		checkTop(t, st, s, nil)
 	}
 	for i := len(strs) - 1; i > 0; i-- {
 		checkPop(t, &st, strs[i], nil)
 		checkTop(t, st, strs[i-1], nil)
-		checkParams(t, st, i, false)
+		checkStackParams(t, st, i, false)
 	}
 	checkPop(t, &st, strs[0], nil)
-	checkParams(t, st, 0, true)
+	checkStackParams(t, st, 0, true)
 	checkTop(t, st, "", errEmptyStack)
 	checkPop(t, &st, "", errEmptyStack)
 }
