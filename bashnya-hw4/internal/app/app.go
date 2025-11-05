@@ -9,31 +9,25 @@ const (
 	Name = "uniq"
 )
 
-type App struct {
-	seeker *core.UniqSeeker
-}
+// type App struct {
+// 	processor *core.UniqProcessor
+// }
 
-func NewApp(cfg cli.Config) (*App, error) {
-	seeker, err := core.NewUniqSeeker(cfg)
-	if err != nil {
-		return nil, err
-	}
-	return &App{seeker: seeker}, nil
-}
-
-func Launch(args []string) error {
-	cfg, arguments, err := cli.ParseFlags(args)
+func LaunchApp(args []string) error {
+	parser := cli.NewArgsParser(args)
+	cfg, err := parser.GetConfig()
 	if err != nil {
 		return err
 	}
-	app, err := NewApp(cfg)
-	if err != nil {
-		return nil
-	}
-	err = app.seeker.SeekUnique(arguments)
+	proc, err := core.NewUniqProcessor(&cfg)
 	if err != nil {
 		return err
 	}
-
+	if err := proc.Process(); err != nil {
+		return err
+	}
+	if err := parser.CloseFiles(); err != nil {
+		return err
+	}
 	return nil
 }

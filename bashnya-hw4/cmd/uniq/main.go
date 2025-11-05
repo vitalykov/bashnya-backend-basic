@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	if err := app.Launch(os.Args); err != nil {
+	if err := app.LaunchApp(os.Args); err != nil {
 		fmt.Printf("%s: %s", appName, err.Error())
 		os.Exit(1)
 	}
