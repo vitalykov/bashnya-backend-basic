@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 )
 
-func sumSquares(start, end int) int {
+func sumSquares(start, end, step int) int {
 	var sum int64
-	l, r := int64(start), int64(end)
+	l, r, st := int64(start), int64(end), int64(step)
 	nums := make(chan int64)
 	wg := sync.WaitGroup{}
 	ctx := context.Context(context.Background())
@@ -19,7 +19,7 @@ func sumSquares(start, end int) int {
 	for range workersCount {
 		go addSquare64(ctx, &wg, nums, &sum)
 	}
-	for i := l; i <= r; i++ {
+	for i := l; i <= r; i += st {
 		nums <- i
 	}
 	cancel()
