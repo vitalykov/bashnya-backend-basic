@@ -1,4 +1,4 @@
-//go:build 386 || arm || mips
+//go:build 386 || arm || mips || mipsle
 
 package summator
 

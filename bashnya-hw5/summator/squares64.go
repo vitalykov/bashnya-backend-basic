@@ -1,4 +1,4 @@
-//go:build arm64 || amd64 || mips64
+//go:build amd64 || arm64 || mips64 || mips64le || ppc64 || ppc64le || riscv64 || s390x || wasm
 
 package summator
 
