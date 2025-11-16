@@ -1,5 +1,3 @@
-//go:build amd64 || arm64 || mips64 || mips64le || ppc64 || ppc64le || riscv64 || s390x || wasm
-
 package bits
 
 import (
@@ -28,8 +26,8 @@ func TestSet(t *testing.T) {
 		{
 			name:     "big result",
 			n:        32,
-			pos:      62,
-			expected: 1<<62 + 32,
+			pos:      30,
+			expected: 1<<30 + 32,
 		},
 	}
 	for _, tt := range tests {
@@ -98,8 +96,8 @@ func TestFlip(t *testing.T) {
 		{
 			name:     "big result",
 			n:        32,
-			pos:      62,
-			expected: 1<<62 + 32,
+			pos:      30,
+			expected: 1<<30 + 32,
 		},
 	}
 	for _, tt := range tests {
