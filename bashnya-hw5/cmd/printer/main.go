@@ -29,7 +29,7 @@ func generateValue(rnd *rand.Rand) any {
 }
 
 func main() {
-	workersCount := runtime.NumCPU()
+	workersCount := runtime.GOMAXPROCS(-1)
 	if len(os.Args) == 2 {
 		n, err := strconv.Atoi(os.Args[1])
 		if err != nil {
