@@ -28,6 +28,8 @@ func generateValue(rnd *rand.Rand) any {
 	return 5
 }
 
+const timeFormat = "Jan 2, 2006 15:04:05.999"
+
 func main() {
 	workersCount := runtime.GOMAXPROCS(-1)
 	if len(os.Args) == 2 {
@@ -48,7 +50,10 @@ func main() {
 	for {
 		select {
 		case <-signals:
+			tSigint := time.Now()
 			p.Shutdown()
+			fmt.Printf("SIGINT received at %s.\n", tSigint.Format(timeFormat))
+			fmt.Printf("Printer shutdown at %s.\n", time.Now().Format(timeFormat))
 			return
 		default:
 			in <- generateValue(rnd)
