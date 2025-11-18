@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"slices"
+	"sort"
 	"sync"
 )
 
@@ -12,10 +12,10 @@ func RunPipeline(cmds ...cmd) {
 		chans = append(chans, make(chan any))
 	}
 	var wg sync.WaitGroup
-	for i, c := range cmds {
+	for i, command := range cmds {
 		wg.Go(func() {
 			defer close(chans[i+1])
-			c(chans[i], chans[i+1])
+			command(chans[i], chans[i+1])
 		})
 	}
 	wg.Wait()
@@ -26,9 +26,9 @@ func SelectUsers(in, out chan interface{}) {
 	var wg sync.WaitGroup
 	for email := range in {
 		wg.Go(func() {
-			u := GetUser(email.(string))
-			if _, ok := emails.LoadOrStore(u.Email, struct{}{}); !ok {
-				out <- u
+			user := GetUser(email.(string))
+			if _, ok := emails.LoadOrStore(user.Email, struct{}{}); !ok {
+				out <- user
 			}
 		})
 	}
@@ -37,66 +37,54 @@ func SelectUsers(in, out chan interface{}) {
 
 func findMessages(wg *sync.WaitGroup, out chan any, users []User) {
 	wg.Go(func() {
-		msgs, _ := GetMessages(users...)
-		for _, m := range msgs {
-			out <- m
+		messages, _ := GetMessages(users...)
+		for _, msg := range messages {
+			out <- msg
 		}
 	})
 }
 
 func SelectMessages(in, out chan interface{}) {
-	batch := make([]User, GetMessagesMaxUsersBatch)
-	i := 0
+	batch := make([]User, 0, GetMessagesMaxUsersBatch)
 	var wg sync.WaitGroup
-	for u := range in {
-		batch[i] = u.(User)
-		i = (i + 1) % GetMessagesMaxUsersBatch
-		if i == 0 {
-			batchCopy := make([]User, GetMessagesMaxUsersBatch)
-			copy(batchCopy, batch)
-			findMessages(&wg, out, batchCopy)
+	for user := range in {
+		batch = append(batch, user.(User))
+		if len(batch) == GetMessagesMaxUsersBatch {
+			findMessages(&wg, out, batch)
+			batch = make([]User, 0, GetMessagesMaxUsersBatch)
 		}
 	}
-	if i > 0 {
-		batchCopy := make([]User, GetMessagesMaxUsersBatch)
-		copy(batchCopy, batch)
-		findMessages(&wg, out, batchCopy[:i])
-	}
+	findMessages(&wg, out, batch)
 	wg.Wait()
 }
 
 func CheckSpam(in, out chan interface{}) {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, HasSpamMaxAsyncRequests)
-	for mId := range in {
+	for msgId := range in {
 		sem <- struct{}{}
 		wg.Go(func() {
 			defer func() { <-sem }()
-			spam, _ := HasSpam(mId.(MsgID))
-			out <- MsgData{ID: mId.(MsgID), HasSpam: spam}
+			spam, _ := HasSpam(msgId.(MsgID))
+			out <- MsgData{ID: msgId.(MsgID), HasSpam: spam}
 		})
 	}
 	wg.Wait()
 }
 
 func CombineResults(in, out chan interface{}) {
-	msgs := []MsgData{}
-	for mData := range in {
-		msgs = append(msgs, mData.(MsgData))
+	messages := []MsgData{}
+	for msgData := range in {
+		messages = append(messages, msgData.(MsgData))
 	}
-	slices.SortFunc(msgs, func(a, b MsgData) int {
+	sort.Slice(messages, func(i, j int) bool {
+		a, b := messages[i], messages[j]
 		if a.HasSpam == b.HasSpam {
-			if a.ID < b.ID {
-				return -1
-			}
-			return 1
+			return a.ID < b.ID
 		}
-		if a.HasSpam && !b.HasSpam {
-			return -1
-		}
-		return 1
+		return a.HasSpam
 	})
-	for _, mData := range msgs {
-		out <- fmt.Sprintf("%v %d", mData.HasSpam, mData.ID)
+	for _, msgData := range messages {
+		out <- fmt.Sprintf("%v %d", msgData.HasSpam, msgData.ID)
 	}
 }
